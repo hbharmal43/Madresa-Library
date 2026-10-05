@@ -1,0 +1,97 @@
+{% extends "admin/base.html" %}
+{% load i18n unfold %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+    {% include "unfold/helpers/site_branding.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-6">
+
+    <div class="flex flex-wrap gap-3">
+        {% component "unfold/components/button.html" with href=checkout_url icon="output" size="lg" %}
+            Check out a book
+        {% endcomponent %}
+        {% component "unfold/components/button.html" with href=checkin_url icon="input" size="lg" variant="default" %}
+            Check in a book
+        {% endcomponent %}
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {% for stat in stats %}
+            {% component "unfold/components/card.html" with href=stat.link %}
+                <div class="text-sm font-medium text-base-500 dark:text-base-400">{{ stat.title }}</div>
+                <div class="mt-1 text-3xl font-semibold tracking-tight {% if stat.danger and stat.value %}text-red-600{% else %}text-font-important-light dark:text-font-important-dark{% endif %}">{{ stat.value }}</div>
+            {% endcomponent %}
+        {% endfor %}
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        {% component "unfold/components/card.html" with title="Overdue" %}
+            {% if overdue_loans %}
+                <table class="w-full text-sm">
+                    <thead class="text-left text-xs uppercase text-base-500">
+                        <tr><th class="pb-2">Book</th><th class="pb-2">Borrower</th><th class="pb-2 text-right">Days late</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-base-200 dark:divide-base-800">
+                        {% for loan in overdue_loans %}
+                            <tr>
+                                <td class="py-2 pr-2"><a class="font-medium text-font-important-light dark:text-font-important-dark" href="{% url 'admin:library_loan_change' loan.pk %}">{{ loan.book.title }}</a><div class="text-xs">{{ loan.book.barcode }}</div></td>
+                                <td class="py-2 pr-2">{{ loan.borrower_name }}{% if loan.borrower_phone %}<div class="text-xs">{{ loan.borrower_phone }}</div>{% endif %}</td>
+                                <td class="py-2 text-right font-semibold text-red-600">{{ loan.days_overdue }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-sm">No overdue books. 🎉</p>
+            {% endif %}
+        {% endcomponent %}
+
+        {% component "unfold/components/card.html" with title="Due soon" %}
+            {% if due_soon %}
+                <table class="w-full text-sm">
+                    <thead class="text-left text-xs uppercase text-base-500">
+                        <tr><th class="pb-2">Book</th><th class="pb-2">Borrower</th><th class="pb-2 text-right">Due</th></tr>
+                    </thead>
+                    <tbody class="divide-y divide-base-200 dark:divide-base-800">
+                        {% for loan in due_soon %}
+                            <tr>
+                                <td class="py-2 pr-2"><a class="font-medium text-font-important-light dark:text-font-important-dark" href="{% url 'admin:library_loan_change' loan.pk %}">{{ loan.book.title }}</a></td>
+                                <td class="py-2 pr-2">{{ loan.borrower_name }}</td>
+                                <td class="py-2 text-right">{{ loan.due_date|date:"M d" }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="text-sm">Nothing is checked out right now.</p>
+            {% endif %}
+        {% endcomponent %}
+    </div>
+
+    {% component "unfold/components/card.html" with title="Recent activity" %}
+        {% if recent_loans %}
+            <table class="w-full text-sm">
+                <thead class="text-left text-xs uppercase text-base-500">
+                    <tr><th class="pb-2">Book</th><th class="pb-2">Borrower</th><th class="pb-2">Checked out</th><th class="pb-2">Returned</th></tr>
+                </thead>
+                <tbody class="divide-y divide-base-200 dark:divide-base-800">
+                    {% for loan in recent_loans %}
+                        <tr>
+                            <td class="py-2 pr-2"><a class="font-medium text-font-important-light dark:text-font-important-dark" href="{% url 'admin:library_loan_change' loan.pk %}">{{ loan.book.title }}</a></td>
+                            <td class="py-2 pr-2">{{ loan.borrower_name }}</td>
+                            <td class="py-2 pr-2">{{ loan.checked_out_at|date:"M d, g:i A" }}</td>
+                            <td class="py-2">{% if loan.returned_at %}{{ loan.returned_at|date:"M d, g:i A" }}{% else %}<span class="text-orange-600">still out</span>{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-sm">No loans yet. Import the spreadsheet, then check out the first book.</p>
+        {% endif %}
+    {% endcomponent %}
+</div>
+{% endblock %}
