@@ -11,8 +11,9 @@ records who borrowed what and when. The whole UI is the Django admin styled with
 - **Books** – add, edit, search (scan a barcode into the search box), filter by
   status / category / shelf. Change a book's shelf straight from the list.
   "Remove" keeps the record and its history; hard delete is superuser-only.
-- **Check out** – scan a barcode, type the borrower's name (phone optional),
-  pick 7 / 14 / 21 / 30 days. Refuses books that are already out, lost or removed.
+- **Check out** – scan a barcode, type the borrower's name, pick their class
+  (Atfaal / Pre-K through Haadi Ashara / 11, or leave blank for adults), phone
+  optional, pick 7 / 14 / 21 / 30 days. Refuses books that are already out, lost or removed.
 - **Check in** – scan a barcode. Tells you who had it, whether it was late, and
   which shelf it goes back on.
 - **Loans** – full history, filter by checked out / overdue / returned, check in

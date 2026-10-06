@@ -40,7 +40,10 @@
                 <form method="post" action="" class="flex flex-col gap-2">
                     {% csrf_token %}
                     {{ checkout_form.barcode }}
-                    {% include "unfold/helpers/field.html" with field=checkout_form.borrower_name %}
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                        {% include "unfold/helpers/field.html" with field=checkout_form.borrower_name %}
+                        {% include "unfold/helpers/field.html" with field=checkout_form.borrower_grade %}
+                    </div>
                     <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
                         {% include "unfold/helpers/field.html" with field=checkout_form.borrower_phone %}
                         {% include "unfold/helpers/field.html" with field=checkout_form.loan_days %}
@@ -68,7 +71,7 @@
                         <li class="flex flex-col py-2">
                             <span class="font-medium text-font-important-light dark:text-font-important-dark">{{ loan.book.title }}</span>
                             <span class="text-xs">
-                                {{ loan.borrower_name }} ·
+                                {{ loan.borrower_name }}{% if loan.borrower_grade %} · {{ loan.get_borrower_grade_display }}{% endif %} ·
                                 {% if loan.is_overdue %}<span class="font-semibold text-red-600">overdue since {{ loan.due_date|date:"M d" }}</span>{% else %}due {{ loan.due_date|date:"M d" }}{% endif %}
                             </span>
                         </li>

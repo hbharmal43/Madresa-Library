@@ -142,6 +142,24 @@ class LoanQuerySet(models.QuerySet):
         return self.open().filter(due_date__lt=timezone.localdate())
 
 
+class Grade(models.TextChoices):
+    """Madresa class names with the matching school grade."""
+
+    ATFAAL = "PK", "Atfaal (Pre-K)"
+    IBTEDAYAH = "K", "Ibtedayah (Kindergarten)"
+    AWWALA = "1", "Awwala (1)"
+    SANIYAH = "2", "Saniyah (2)"
+    SALESA = "3", "Salesa (3)"
+    RABEA = "4", "Rabea (4)"
+    KHAMESA = "5", "Khamesa (5)"
+    SADESA = "6", "Sadesa (6)"
+    SABEA = "7", "Sabea (7)"
+    SAMENA = "8", "Samena (8)"
+    TASEA = "9", "Tasea (9)"
+    AASHERA = "10", "Aashera (10)"
+    HAADI_ASHARA = "11", "Haadi Ashara (11)"
+
+
 class Loan(models.Model):
     """
     One checkout. ``returned_at`` is null while the book is out.
@@ -150,6 +168,14 @@ class Loan(models.Model):
 
     book = models.ForeignKey(Book, on_delete=models.PROTECT, related_name="loans")
     borrower_name = models.CharField(max_length=150)
+    borrower_grade = models.CharField(
+        "class",
+        max_length=4,
+        choices=Grade.choices,
+        blank=True,
+        db_index=True,
+        help_text="Leave blank for teachers, parents or other adults.",
+    )
     borrower_phone = models.CharField(max_length=30, blank=True)
     checked_out_at = models.DateTimeField(default=timezone.now)
     due_date = models.DateField(db_index=True)

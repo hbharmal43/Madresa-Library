@@ -27,6 +27,7 @@ def checkout(
     *,
     book: Book,
     borrower_name: str,
+    borrower_grade: str = "",
     borrower_phone: str = "",
     loan_days: int | None = None,
     user=None,
@@ -53,6 +54,7 @@ def checkout(
     loan = Loan.objects.create(
         book=book,
         borrower_name=borrower_name,
+        borrower_grade=(borrower_grade or "").strip(),
         borrower_phone=(borrower_phone or "").strip(),
         checked_out_at=now,
         due_date=timezone.localdate(now) + timedelta(days=loan_days),

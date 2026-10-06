@@ -7,6 +7,8 @@ from unfold.widgets import (
     UnfoldAdminTextInputWidget,
 )
 
+from .models import Grade
+
 
 def loan_day_choices():
     return [(d, f"{d} days") for d in settings.LIBRARY_LOAN_DAY_CHOICES]
@@ -40,6 +42,12 @@ class CheckoutForm(forms.Form):
         widget=UnfoldAdminTextInputWidget(
             attrs={"autofocus": True, "autocomplete": "off", "placeholder": "Full name"}
         ),
+    )
+    borrower_grade = forms.ChoiceField(
+        label="Class",
+        required=False,
+        choices=[("", "Not a student / adult")] + list(Grade.choices),
+        widget=UnfoldAdminSelectWidget,
     )
     borrower_phone = forms.CharField(
         label="Phone (optional)",

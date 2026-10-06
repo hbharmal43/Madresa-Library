@@ -134,15 +134,44 @@ class AdminPagesTests(TestCase):
         self.assertContains(response, self.book.title)
         # Step 2: borrower details
         response = self.client.post(
-            url, {"barcode": "535520", "borrower_name": "Ali", "borrower_phone": "", "loan_days": 7}, follow=True
+            url,
+            {"barcode": "535520", "borrower_name": "Ali", "borrower_grade": "4", "borrower_phone": "", "loan_days": 7},
+            follow=True,
         )
         self.assertContains(response, "Checked out")
+        self.assertContains(response, "Rabea (4)")
         loan = Loan.objects.get()
         self.assertEqual(loan.borrower_name, "Ali")
+        self.assertEqual(loan.borrower_grade, "4")
         self.assertEqual(loan.due_date, timezone.localdate() + timedelta(days=7))
         # Scanning it again warns instead of showing the form
         response = self.client.get(url, {"barcode": "535520"}, follow=True)
         self.assertContains(response, "already checked out to Ali")
+
+    def test_checkout_without_grade_is_allowed(self):
+        response = self.client.post(
+            reverse("admin:library_checkout"),
+            {"barcode": "535520", "borrower_name": "Teacher Sb", "borrower_grade": "", "borrower_phone": "", "loan_days": 14},
+            follow=True,
+        )
+        self.assertContains(response, "Checked out")
+        self.assertEqual(Loan.objects.get().borrower_grade, "")
+
+    def test_checkout_rejects_unknown_grade(self):
+        response = self.client.post(
+            reverse("admin:library_checkout"),
+            {"barcode": "535520", "borrower_name": "Ali", "borrower_grade": "12", "borrower_phone": "", "loan_days": 14},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Loan.objects.count(), 0)
+
+    def test_loan_list_filters_by_grade(self):
+        checkout(book=self.book, borrower_name="Ali", borrower_grade="4")
+        other = make_book(barcode="2", title="Other")
+        checkout(book=other, borrower_name="Zahra", borrower_grade="9")
+        response = self.client.get(reverse("admin:library_loan_changelist"), {"borrower_grade__exact": "9"})
+        self.assertContains(response, "Zahra")
+        self.assertNotContains(response, "Ali")
 
     def test_checkout_unknown_barcode(self):
         response = self.client.get(reverse("admin:library_checkout"), {"barcode": "000"}, follow=True)

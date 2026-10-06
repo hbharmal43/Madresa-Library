@@ -31,7 +31,7 @@
                         <li class="flex flex-col py-2">
                             <span class="font-medium text-font-important-light dark:text-font-important-dark">{{ loan.book.title }}</span>
                             <span class="text-xs">
-                                {{ loan.borrower_name }} · {{ loan.returned_at|date:"g:i A" }}
+                                {{ loan.borrower_name }}{% if loan.borrower_grade %} · {{ loan.get_borrower_grade_display }}{% endif %} · {{ loan.returned_at|date:"g:i A" }}
                                 {% if loan.book.shelf %} · shelf {{ loan.book.shelf.code }}{% endif %}
                             </span>
                         </li>

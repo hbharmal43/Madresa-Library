@@ -41,6 +41,7 @@ def checkout_view(request):
                 loan = checkout(
                     book=book,
                     borrower_name=data["borrower_name"],
+                    borrower_grade=data["borrower_grade"],
                     borrower_phone=data["borrower_phone"],
                     loan_days=data["loan_days"],
                     user=request.user,
@@ -49,10 +50,12 @@ def checkout_view(request):
             except CirculationError as exc:
                 messages.error(request, str(exc))
                 return redirect("admin:library_checkout")
+            who = loan.borrower_name
+            if loan.borrower_grade:
+                who += f" ({loan.get_borrower_grade_display()})"
             messages.success(
                 request,
-                f"Checked out “{loan.book.title}” to {loan.borrower_name}. "
-                f"Due {loan.due_date:%b %d, %Y}.",
+                f"Checked out “{loan.book.title}” to {who}. Due {loan.due_date:%b %d, %Y}.",
             )
             return redirect("admin:library_checkout")
         # Invalid form: re-show the book so the librarian can fix the fields.

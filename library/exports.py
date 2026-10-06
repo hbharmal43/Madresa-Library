@@ -17,6 +17,7 @@ HEADERS = [
     "Shelf",
     "Status",
     "Borrowed by",
+    "Class",
     "Due date",
 ]
 
@@ -35,7 +36,7 @@ def books_to_xlsx_response(queryset, filename: str | None = None) -> HttpRespons
     from .models import Loan
 
     for loan in Loan.objects.open().filter(book__in=queryset).only(
-        "book_id", "borrower_name", "due_date"
+        "book_id", "borrower_name", "borrower_grade", "due_date"
     ):
         open_loans[loan.book_id] = loan
 
@@ -51,11 +52,12 @@ def books_to_xlsx_response(queryset, filename: str | None = None) -> HttpRespons
                 book.shelf.code if book.shelf else "",
                 book.get_status_display(),
                 loan.borrower_name if loan else "",
+                loan.get_borrower_grade_display() if loan and loan.borrower_grade else "",
                 loan.due_date.isoformat() if loan else "",
             ]
         )
 
-    widths = [12, 40, 20, 36, 32, 8, 12, 24, 12]
+    widths = [12, 40, 20, 36, 32, 8, 12, 24, 22, 12]
     for i, width in enumerate(widths, start=1):
         ws.column_dimensions[get_column_letter(i)].width = width
 

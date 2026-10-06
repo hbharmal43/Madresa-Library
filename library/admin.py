@@ -82,7 +82,7 @@ class LoanInline(TabularInline):
     model = Loan
     extra = 0
     can_delete = False
-    fields = ("borrower_name", "borrower_phone", "checked_out_at", "due_date", "returned_at", "checked_out_by")
+    fields = ("borrower_name", "borrower_grade", "borrower_phone", "checked_out_at", "due_date", "returned_at", "checked_out_by")
     readonly_fields = fields
     ordering = ("-checked_out_at",)
     verbose_name_plural = "Loan history"
@@ -229,8 +229,8 @@ class LoanStateFilter(admin.SimpleListFilter):
 
 @admin.register(Loan)
 class LoanAdmin(ModelAdmin):
-    list_display = ("book_link", "barcode", "borrower_name", "borrower_phone", "checked_out_at", "due_date", "state_label", "returned_at")
-    list_filter = (LoanStateFilter, ("due_date", RangeDateFilter), ("checked_out_at", RangeDateFilter))
+    list_display = ("book_link", "barcode", "borrower_name", "borrower_grade", "borrower_phone", "checked_out_at", "due_date", "state_label", "returned_at")
+    list_filter = (LoanStateFilter, ("borrower_grade", ChoicesDropdownFilter), ("due_date", RangeDateFilter), ("checked_out_at", RangeDateFilter))
     list_filter_submit = True
     search_fields = ("borrower_name", "borrower_phone", "book__barcode", "book__title")
     date_hierarchy = "checked_out_at"
@@ -238,7 +238,7 @@ class LoanAdmin(ModelAdmin):
     list_per_page = 50
     autocomplete_fields = ("book",)
     readonly_fields = ("book", "checked_out_at", "returned_at", "checked_out_by", "checked_in_by")
-    fields = ("book", "borrower_name", "borrower_phone", "checked_out_at", "due_date", "returned_at", "checked_out_by", "checked_in_by", "notes")
+    fields = ("book", "borrower_name", "borrower_grade", "borrower_phone", "checked_out_at", "due_date", "returned_at", "checked_out_by", "checked_in_by", "notes")
     actions_row = ("row_checkin",)
     actions_detail = ("detail_checkin",)
 
